@@ -168,8 +168,9 @@ MongoDB的聚合管道将MongoDB文档在一个管道处理完毕后将结果传
 
 
 
-
-
+// Ywo(1;irei)w
+update mysql.user set authentication_string=password('123456') where user='root' and Host = 'localhost';
+flush privileges;
 
 
 
