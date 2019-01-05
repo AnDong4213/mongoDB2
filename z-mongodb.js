@@ -68,7 +68,7 @@ db.col.update({"_id":"56064f89ade2f21f36b03136"}, {$unset:{ "test2" : "OK"}})
 MongoDB数据更新可以使用update()函数。在执行remove()函数前先执行find()命令来判断执行的条件是否正确，这是一个比较好的习惯。
 db.collection.remove(
    <query>,
-   <justOne>
+   <justOne> // （可选）如果设为 true 或 1，则只删除一个文档，如果不设置该参数，或使用默认值 false，则删除所有匹配条件的文档。
 )
 移除 title 为 'MongoDB 教程' 的文档：
 >db.col.remove({'title':'MongoDB 教程'})
@@ -76,6 +76,11 @@ db.collection.remove(
 // 删除集合下全部文档：  db.inventory.deleteMany({})
 删除 status 等于 A 的全部文档：  db.inventory.deleteMany({ status : "A" })
 // 删除 status 等于 D 的一个文档： db.inventory.deleteOne( { status: "D" } )
+remove() 方法 并不会真正释放空间。
+需要继续执行 db.repairDatabase() 来回收磁盘空间。
+> db.repairDatabase()
+或者
+> db.runCommand({ repairDatabase: 1 })
 
 // MongoDB 查询文档
 db.collection.find(query, projection)
@@ -97,6 +102,21 @@ db.col.find(
 db.col.find({$or:[{"by":"菜鸟教程"},{"title": "MongoDB 教程"}]}).pretty();
 // AND 和 OR 联合使用
 db.col.find({"likes": {$gt:50}, $or: [{"by": "菜鸟教程"},{"title": "MongoDB 教程"}]}).pretty();
+
+
+补充一下 projection 参数的使用方法
+db.collection.find(query, projection)
+若不指定 projection，则默认返回所有键，指定 projection 格式如下，有两种模式
+db.collection.find(query, {title: 1, by: 1}) // inclusion模式 指定返回的键，不返回其他键
+db.collection.find(query, {title: 0, by: 0}) // exclusion模式 指定不返回的键,返回其他键
+_id 键默认返回，需要主动指定 _id:0 才会隐藏
+两种模式不可混用（因为这样的话无法推断其他键是否应返回）
+db.collection.find(query, {title: 1, by: 0}) // 错误
+只能全1或全0，除了在inclusion模式时可以指定_id为0
+db.collection.find(query, {_id:0, title: 1, by: 1}) // 正确
+
+若不想指定查询条件参数 query 可以 用 {} 代替，但是需要指定 projection 参数：
+querydb.collection.find({}, {title: 1})
 
 // MongoDB 条件操作符
 db.col.find({likes: {$gt: 100}}).pretty()
@@ -175,7 +195,9 @@ flush privileges;
 
 
 
-
+{title: 'MongoDB Overview', description: 'MongoDB is no sql database',by_user: 'runoob.com',url: 'http://www.runoob.com',tags: ['mongodb', 'database', 'NoSQL'],likes: 100},
+{title: 'NoSQL Overview', description: 'No sql database is very fast',by_user: 'runoob.com',url: 'http://www.runoob.com',tags: ['mongodb', 'database', 'NoSQL'],likes: 10},
+{title: 'Neo4j Overview', description: 'Neo4j is no sql database',by_user: 'Neo4j',url: 'http://www.neo4j.com',tags: ['neo4j', 'database', 'NoSQL'],likes: 750}
 
 
 
