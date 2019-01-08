@@ -256,6 +256,119 @@ db.course.insert({uid:3,name:'王五',cid:6,course:'几何',score:90});
 { "_id" : { "编号" : 2, "姓名" : "李四" }, "平均成绩" : 66.2 }
 { "_id" : { "编号" : 3, "姓名" : "王五" }, "平均成绩" : 78.83333333333333 }
 
+// db.course.aggregate([{$match: {score: {$gt: 60, $lte: 90}}},{$group: {_id: {编号: '$uid', 姓名: '$name'}, 平均成绩: {$avg: '$score'}} }, {$sort: {_id: 1}}])
+{ "_id" : { "编号" : 1, "姓名" : "张三" }, "平均成绩" : 67.5 }
+{ "_id" : { "编号" : 2, "姓名" : "李四" }, "平均成绩" : 72.25 }
+{ "_id" : { "编号" : 3, "姓名" : "王五" }, "平均成绩" : 81.75 }
+
+// db.course.aggregate([{$group: {_id: {课程编号: '$cid', 课程名称: '$course'},平均成绩: {$avg: '$score'}}}, {$sort: {_id: 1}}])
+{ "_id" : { "课程编号" : 1, "课程名称" : "英语" }, "平均成绩" : 76.33333333333333 }
+{ "_id" : { "课程编号" : 2, "课程名称" : "数学" }, "平均成绩" : 77.33333333333333 }
+{ "_id" : { "课程编号" : 3, "课程名称" : "物理" }, "平均成绩" : 63.333333333333336 }
+{ "_id" : { "课程编号" : 4, "课程名称" : "化学" }, "平均成绩" : 61.666666666666664 }
+{ "_id" : { "课程编号" : 5, "课程名称" : "生物" }, "平均成绩" : 78 }
+{ "_id" : { "课程编号" : 6, "课程名称" : "几何" }, "平均成绩" : 90 }
+
+// db.course.aggregate([{$group: {_id: {课程编号: '$cid', 课程名称: '$course'},平均成绩: {$avg: '$score'}}}, {$sort: {_id: 1}}, {$skip: 1}, {$limit: 2}])
+{ "_id" : { "课程编号" : 2, "课程名称" : "数学" }, "平均成绩" : 77.33333333333333 }
+{ "_id" : { "课程编号" : 3, "课程名称" : "物理" }, "平均成绩" : 63.333333333333336 }
+
+
+
+创建索引： 
+db.mycol.createIndex({"title":1})   //1是按升序排列的字段名称。要创建降序索引，需要使用-1。 
+//mongodb会为我们取一个默认的名字，规则为keyname1_dir1_keyname2_dir2...keynameN_dirN 
+ 
+// createIndex指定索引名称 
+db.user.createIndex({"name":1},{"name":"IX_name"}) //索引名为IX_name 
+ 
+// 多字段索引： 
+db.mycol.createIndex({"title":1,"description":-1}) 
+
+// 唯一索引: 
+db.user.createIndex({"name":1},{"unique":true}) 
+ 
+// 联合唯一索引： 
+db.user.createIndex({"name":1,"age":1},{unique:true,name:'nameageunq'})
+ 
+1、查看集合索引  db.col.getIndexes()
+2、查看集合索引大小  db.col.totalIndexSize()
+3、删除集合所有索引  db.col.dropIndexes()
+4、删除集合指定索引   db.col.dropIndex("索引名称")
+
+
+一:备份数据库
+G:\Program Files\MongoDB\Server\3.0\bin>mongodump -d mydb -o g:/data/back
+
+mongodump -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -o 文件存在路径
+如果没有用户，可以去掉-u和-p。
+如果导出本机的数据库，可以去掉-h。
+如果是默认端口，可以去掉--port。
+如果想导出所有数据库，可以去掉-d。
+
+导出所有数据库
+命令：mongodump -h 127.0.0.1 -o /home/zhangy/mongodb/
+
+导出指定数据库
+mongodump -h 192.168.1.108 -d tank -o /home/zhangy/mongodb/
+
+二:mongorestore还原数据库
+1,常用命令格式
+ mongorestore -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 --drop 文件存在路径 
+ --drop的意思是，先删除所有的记录，然后恢复。
+  mongorestore /home/zhangy/mongodb/  #这里的路径是所有库的备份
+
+  G:\Program Files\MongoDB\Server\3.0\bin>mongorestore -d mydb1 --dir g:/data/back/mydb
+
+2,恢复所有数据库到mongodb中
+mongorestore /home/zhangy/mongodb/  #这里的路径是所有库的备份
+
+3,还原指定的数据库
+G:\Program Files\MongoDB\Server\3.0\bin>mongorestore -d mydb1 --dir g:/data/back/mydb
+
+mongorestore -d tank /home/zhangy/mongodb/tank/  #tank这个数据库的备份路径
+mongorestore -d tank_new /home/zhangy/mongodb/tank/  #将tank还有tank_new数据库中
+
+三，mongoexport导出表，或者表中部分字段
+mongoexport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 -f 字段 -q 条件导出 --csv -o 文件名 
+
+上面的参数好理解，重点说一下：
+-f    导出指字段，以字号分割，-f name,email,age导出name,email,age这三个字段
+-q    可以根据查询条件导出，-q '{ "uid" : "100" }' 导出uid为100的数据
+--csv 表示导出的文件格式为csv的，这个比较有用，因为大部分的关系型数据库都是支持csv，在这里有共同点
+
+导出整张表
+mongoexport -d tank -c users -o /home/zhangy/mongodb/tank/users.dat
+
+根据条件导出数据
+mongoexport -d tank -c users -q '{uid:{$gt:1}}' -o tank/users.json
+
+四，mongoimport导入表，或者表中部分字段
+
+还原整表导出的非csv文件
+mongoimport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 --upsert --drop 文件名  
+重点说一下--upsert，其他参数上面的命令已有提到，--upsert 插入或者更新现有数据
+
+还原部分字段的导出文件
+mongoimport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 --upsertFields 字段 --drop 文件名  
+--upsertFields根--upsert一样
+
+还原导出的csv文件
+mongoimport -h IP --port 端口 -u 用户名 -p 密码 -d 数据库 -c 表名 --type 类型 --headerline --upsert --drop 文件名  
+
+还原导出的表数据
+mongoimport -d tank -c users --upsert tank/users.dat
+
+部分字段的表数据导入
+mongoimport -d tank -c users  --upsertFields uid,name,sex  tank/users.dat 
+
+还原csv文件
+mongoimport -d tank -c users --type csv --headerline --file tank/users.csv
+
+
+
+
+
 
 
 

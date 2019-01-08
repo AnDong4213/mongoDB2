@@ -17,6 +17,12 @@ WriteResult({ "nInserted" : 1 })
 > db.runoob.find()
 { "_id" : ObjectId("5604ff74a274a611b0c990aa"), "x" : 10 }
 
+MongoDB 创建数据库
+语法
+MongoDB 创建数据库的语法格式如下：
+use DATABASE_NAME
+如果数据库不存在，则创建数据库，否则切换到指定数据库。
+
 // 删库
 查看所有数据库：show dbs
 切换到数据库 runoob： use runoob
