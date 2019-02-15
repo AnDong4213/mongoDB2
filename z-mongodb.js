@@ -208,9 +208,18 @@ flush privileges;
 
 
 
+D:\soft\redis\redis-server.exe --service-run "D:\soft\redis\redis.windows-service.conf"
 
+cdto the bin directory of Redis, and run
 
+redis-cli.exe
+shutdown
+exit
+open another cmd window, cd to the bin directory of Redis, and run
 
+redis-server.exe
+
+redis-server
 
 
 

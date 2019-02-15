@@ -71,3 +71,7 @@ router.all('/zhuce', function(req, res) {
 
 
 module.exports = router;
+
+
+  // <Input placeholder="passenger name" style={{ width: '60%', marginRight: 8 }} />
+            // <TextArea rows={3} style={{resize: 'none'}} />
